@@ -1,0 +1,2 @@
+# minesweeper
+Shameless minesweeper clone.
