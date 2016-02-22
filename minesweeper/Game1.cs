@@ -18,7 +18,7 @@ namespace minesweeper
         Texture2D gridCell;
         Color[] cellColor;
         
-        int gridSize = 24;
+        int gridSize = 9;
         int cellCize = 24;
 
         int mineSpacing = 6;
