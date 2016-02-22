@@ -11,14 +11,19 @@ namespace minesweeper
         GraphicsDeviceManager graphics;
         GraphicsDevice device;
         SpriteBatch spriteBatch;
-        
+
+        KeyboardState keyboardState;
+        MouseState mouseState;
+
         Texture2D gridCell;
         Color[] cellColor;
-
-        int gridSize = 9;
+        
+        int gridSize = 24;
         int cellCize = 24;
 
         int mineSpacing = 6;
+
+        Rectangle[,] rectGrid;
 
         int[,] grid;
 
@@ -38,8 +43,8 @@ namespace minesweeper
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
             mineSpacing = 6;
+            this.IsMouseVisible = true;
             base.Initialize();
         }
 
@@ -63,29 +68,37 @@ namespace minesweeper
 
             grid = new int[gridSize, gridSize];
 
-            // making  the grid = 0 for some reason
+            rectGrid = new Rectangle[gridSize, gridSize];
+
+            for (int i = 0; i < gridSize; i++)
+            {
+                for (int j = 0; j < gridSize; j++)
+                {
+                    rectGrid[j, i] = new Rectangle(i * cellCize, j * cellCize, cellCize, cellCize);
+                }
+            }
+
+            // making  the grid = 0
             for (int i = 0; i < grid.GetLength(1); i++)
             {
                 for (int j = 0; j < grid.GetLength(0); j++)
                 {
-                    grid[i,j] = 0;
+                    grid[i, j] = 0;
                 }
             }
             
-            /*
-            grid = new int[,] { {0, 1, 0, 0, 0, 0, 0, 0, 0},
-                                {0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                {0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                {0, 0, 1, 0, 0, 0, 0, 0, 0},
-                                {0, 0, 0, 0, 1, 0, 0, 0, 0},
-                                {0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                {0, 0, 0, 0, 1, 0, 0, 0, 0},
-                                {0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                {0, 0, 0, 0, 1, 0, 0, 0, 0} };  */
+            
+            //grid = new int[,] { {0, 1, 0, 0, 0, 0, 0, 0, 0},
+            //                    {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            //                    {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            //                    {0, 0, 1, 0, 0, 0, 0, 0, 0},
+            //                    {0, 0, 0, 0, 1, 0, 0, 0, 0},
+            //                    {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            //                    {0, 0, 0, 0, 1, 0, 0, 0, 0},
+            //                    {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            //                    {0, 0, 0, 0, 1, 0, 0, 0, 0} };  
 
             Random rnd = new Random();
-
-            Console.WriteLine(rnd.NextDouble());
             
             int m = 0;
             int n = mineSpacing;
@@ -94,7 +107,7 @@ namespace minesweeper
                 for (int j = 0; j < grid.GetLength(0); j++)
                 {
 
-                    if (rnd.NextDouble() < 0.5 && n>=mineSpacing)
+                    if (rnd.NextDouble() < 0.5 && n >= mineSpacing)
                     {
                         grid[j, i] = 1;
                         n = 0;
@@ -120,22 +133,31 @@ namespace minesweeper
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            keyboardState = Keyboard.GetState();
+            mouseState = Mouse.GetState();
+
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
                 Exit();
 
-
-            for (int i = 0; i < grid.GetLength(1); i++)
+            if (mouseState.LeftButton == ButtonState.Pressed)
             {
-                for (int j = 0; j < grid.GetLength(0); j++)
+                for (int i = 0; i < rectGrid.GetLength(0); i++)
                 {
-                    if (grid[j, i] == 0)
+                    for (int j = 0; j < rectGrid.GetLength(1); j++)
                     {
-                        //TODO: logic
+                        if (rectGrid[i, j].Intersects(new Rectangle(mouseState.X, mouseState.Y, 0, 0)))
+                        {
+                            if (grid[i, j] == 1)
+                            {
+                                Console.WriteLine("Hit mine " + i + " " + j);
+                            }
+                        }
                     }
                 }
             }
 
-            base.Update(gameTime);
+
+                base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -149,10 +171,10 @@ namespace minesweeper
                 {
                     if (grid[j, i] == 1)
                     {
-                        spriteBatch.Draw(gridCell, new Rectangle(i*cellCize, j*cellCize, cellCize, cellCize), Color.Red);
+                        spriteBatch.Draw(gridCell, rectGrid[j, i], Color.Red); //spriteBatch.Draw(gridCell, new Rectangle(i*cellCize, j*cellCize, cellCize, cellCize), Color.Red);
                     }
                     else
-                        spriteBatch.Draw(gridCell, new Rectangle(i * cellCize, j * cellCize, cellCize, cellCize), Color.Gray);
+                        spriteBatch.Draw(gridCell, rectGrid[j, i], Color.Gray); //spriteBatch.Draw(gridCell, new Rectangle(i * cellCize, j * cellCize, cellCize, cellCize), Color.Gray);
                 }
             }
             spriteBatch.End();
