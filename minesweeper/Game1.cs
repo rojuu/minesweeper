@@ -7,17 +7,23 @@ namespace minesweeper
     public class Game1 : Game
     {
         GraphicsDeviceManager graphics;
+        GraphicsDevice device;
         SpriteBatch spriteBatch;
 
         Texture2D gridCell;
+        Color[] cellColor;
 
         int gridSize = 9;
-        int cellCize = 64;
+        int cellCize = 24;
 
+        int screenWidth;
+        int screenHeight;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            device = graphics.GraphicsDevice;
+            
             graphics.IsFullScreen = false;
             graphics.PreferredBackBufferHeight = cellCize * gridSize;
             graphics.PreferredBackBufferWidth = cellCize * gridSize;
@@ -36,8 +42,20 @@ namespace minesweeper
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            device = graphics.GraphicsDevice;
 
-            gridCell = new Texture2D(GraphicsDevice, cellCize, cellCize, true, SurfaceFormat.Color);
+            screenWidth = device.PresentationParameters.BackBufferWidth;
+            screenHeight = device.PresentationParameters.BackBufferHeight;
+
+            Color[] cellColor = new Color[cellCize * cellCize];
+            for (int i = 0; i < cellColor.Length; i++)
+            {
+                cellColor[i] = Color.White;
+            }
+
+            gridCell = new Texture2D(device, cellCize, cellCize, false, SurfaceFormat.Color); 
+            gridCell.SetData<Color>(cellColor);
+            
         }
 
         protected override void UnloadContent()
@@ -59,7 +77,9 @@ namespace minesweeper
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin();
+            spriteBatch.Draw(gridCell, new Rectangle(0, 0, cellCize, cellCize), Color.Blue);
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
