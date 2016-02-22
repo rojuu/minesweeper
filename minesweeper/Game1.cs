@@ -67,6 +67,12 @@ namespace minesweeper
                     grid[i,j] = 0;
                 }
             }
+
+            grid[0, 2] = 1;
+            grid[2, 3] = 1;
+            grid[3, 7] = 1;
+            grid[4, 0] = 1;
+            grid[8, 8] = 1;
             
         }
 
