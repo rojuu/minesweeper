@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -9,12 +11,14 @@ namespace minesweeper
         GraphicsDeviceManager graphics;
         GraphicsDevice device;
         SpriteBatch spriteBatch;
-
+        
         Texture2D gridCell;
         Color[] cellColor;
 
         int gridSize = 9;
         int cellCize = 24;
+
+        int mineSpacing;
 
         int[,] grid;
 
@@ -35,7 +39,7 @@ namespace minesweeper
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            mineSpacing = 6;
             base.Initialize();
         }
 
@@ -67,13 +71,46 @@ namespace minesweeper
                     grid[i,j] = 0;
                 }
             }
-
-            grid[0, 2] = 1;
-            grid[2, 3] = 1;
-            grid[3, 7] = 1;
-            grid[4, 0] = 1;
-            grid[8, 8] = 1;
             
+            /*
+            grid = new int[,] { {0, 1, 0, 0, 0, 0, 0, 0, 0},
+                                {0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                {0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                {0, 0, 1, 0, 0, 0, 0, 0, 0},
+                                {0, 0, 0, 0, 1, 0, 0, 0, 0},
+                                {0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                {0, 0, 0, 0, 1, 0, 0, 0, 0},
+                                {0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                {0, 0, 0, 0, 1, 0, 0, 0, 0} };  */
+
+            Random rnd = new Random();
+
+            Console.WriteLine(rnd.NextDouble());
+            
+            int m = 0;
+            int n = mineSpacing;
+            for (int i = 0; i < grid.GetLength(1); i++)
+            {
+                for (int j = 0; j < grid.GetLength(0); j++)
+                {
+
+                    if (rnd.NextDouble() < 0.5 && n>=mineSpacing)
+                    {
+                        grid[j, i] = 1;
+                        n = 0;
+                        m++;
+                    }
+                    else
+                    {
+                        grid[j, i] = 0;
+                    }
+                    n++;
+
+                    if (m >= gridSize)
+                        break;
+                }
+            }
+
         }
 
         protected override void UnloadContent()
@@ -100,7 +137,7 @@ namespace minesweeper
             {
                 for (int j = 0; j < grid.GetLength(0); j++)
                 {
-                    if (grid[i, j] == 1)
+                    if (grid[j, i] == 1)
                     {
                         spriteBatch.Draw(gridCell, new Rectangle(i*cellCize, j*cellCize, cellCize, cellCize), Color.Red);
                     }
