@@ -23,7 +23,6 @@ namespace minesweeper
         {
             graphics = new GraphicsDeviceManager(this);
             device = graphics.GraphicsDevice;
-            
             graphics.IsFullScreen = false;
             graphics.PreferredBackBufferHeight = cellCize * gridSize;
             graphics.PreferredBackBufferWidth = cellCize * gridSize;
