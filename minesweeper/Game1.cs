@@ -96,7 +96,18 @@ namespace minesweeper
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-            spriteBatch.Draw(gridCell, new Rectangle(0, 0, cellCize, cellCize), Color.Blue);
+            for (int i = 0; i < grid.GetLength(1); i++)
+            {
+                for (int j = 0; j < grid.GetLength(0); j++)
+                {
+                    if (grid[i, j] == 1)
+                    {
+                        spriteBatch.Draw(gridCell, new Rectangle(i*cellCize, j*cellCize, cellCize, cellCize), Color.Red);
+                    }
+                    else
+                        spriteBatch.Draw(gridCell, new Rectangle(i * cellCize, j * cellCize, cellCize, cellCize), Color.Gray);
+                }
+            }
             spriteBatch.End();
 
             base.Draw(gameTime);
