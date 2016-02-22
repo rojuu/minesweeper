@@ -1,2 +1,2 @@
 # minesweeper
-Shameless minesweeper clone done with monogame
+Shameless minesweeper clone done with MonoGame.
