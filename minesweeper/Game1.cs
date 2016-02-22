@@ -18,7 +18,7 @@ namespace minesweeper
         int gridSize = 9;
         int cellCize = 24;
 
-        int mineSpacing;
+        int mineSpacing = 6;
 
         int[,] grid;
 
@@ -123,7 +123,17 @@ namespace minesweeper
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+
+            for (int i = 0; i < grid.GetLength(1); i++)
+            {
+                for (int j = 0; j < grid.GetLength(0); j++)
+                {
+                    if (grid[j, i] == 0)
+                    {
+                        //TODO: logic
+                    }
+                }
+            }
 
             base.Update(gameTime);
         }
