@@ -16,6 +16,8 @@ namespace minesweeper
         int gridSize = 9;
         int cellCize = 24;
 
+        int[,] grid;
+
         int screenWidth;
         int screenHeight;
 
@@ -54,6 +56,17 @@ namespace minesweeper
 
             gridCell = new Texture2D(device, cellCize, cellCize, false, SurfaceFormat.Color); 
             gridCell.SetData<Color>(cellColor);
+
+            grid = new int[gridSize, gridSize];
+
+            // making  the grid = 0 for some reason
+            for (int i = 0; i < grid.GetLength(1); i++)
+            {
+                for (int j = 0; j < grid.GetLength(0); j++)
+                {
+                    grid[i,j] = 0;
+                }
+            }
             
         }
 
