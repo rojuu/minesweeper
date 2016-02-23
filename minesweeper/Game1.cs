@@ -52,6 +52,8 @@ namespace minesweeper
         {
             this.IsMouseVisible = true;
 
+            device = graphics.GraphicsDevice;
+
             screenWidth = device.PresentationParameters.BackBufferWidth;
             screenHeight = device.PresentationParameters.BackBufferHeight;
 
@@ -62,7 +64,6 @@ namespace minesweeper
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            device = graphics.GraphicsDevice;
 
             Color[] cellColor = new Color[cellCize * cellCize];
             for (int i = 0; i < cellColor.Length; i++)
