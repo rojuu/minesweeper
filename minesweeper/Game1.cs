@@ -89,11 +89,10 @@ namespace minesweeper
                 }
             }
 
-            GenerateNewMines();
-            CheckNumberOfMinesAdjacent();
+            GenerateNewMineGrid();
         }
 
-        void GenerateNewMines()
+        void GenerateNewMineGrid()
         {
             // making  the grid = 0
             for (int i = 0; i < grid.GetLength(0); i++)
@@ -129,6 +128,8 @@ namespace minesweeper
                         break;
                 }
             }
+
+            CheckNumberOfMinesAdjacent();
         }
 
         void CheckNumberOfMinesAdjacent()
@@ -214,8 +215,9 @@ namespace minesweeper
                         {
                             if (grid[i, j] == -1)
                             {
-                                Console.WriteLine("Hit mine " + i + " " + j);
+                                // TODO: hit mine logic
                             }
+                            Console.WriteLine("cell value: " + grid[i, j]);
                         }
                     }
                 }
