@@ -86,8 +86,8 @@ namespace minesweeper
                     grid[i, j] = 0;
                 }
             }
-            
-            
+
+
             //grid = new int[,] { {0, 1, 0, 0, 0, 0, 0, 0, 0},
             //                    {0, 0, 0, 0, 0, 0, 0, 0, 0},
             //                    {0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -99,7 +99,7 @@ namespace minesweeper
             //                    {0, 0, 0, 0, 1, 0, 0, 0, 0} };  
 
             Random rnd = new Random();
-            
+
             int m = 0;
             int n = mineSpacing;
             for (int i = 0; i < grid.GetLength(1); i++)
@@ -109,13 +109,13 @@ namespace minesweeper
 
                     if (rnd.NextDouble() < 0.5 && n >= mineSpacing)
                     {
-                        grid[j, i] = 1;
+                        grid[i, j] = 1;
                         n = 0;
                         m++;
                     }
                     else
                     {
-                        grid[j, i] = 0;
+                        grid[i, j] = 0;
                     }
                     n++;
 
@@ -165,16 +165,16 @@ namespace minesweeper
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-            for (int i = 0; i < grid.GetLength(1); i++)
+            for (int i = 0; i < grid.GetLength(0); i++)
             {
-                for (int j = 0; j < grid.GetLength(0); j++)
+                for (int j = 0; j < grid.GetLength(1); j++)
                 {
-                    if (grid[j, i] == 1)
+                    if (grid[i, j] == 1)
                     {
-                        spriteBatch.Draw(gridCell, rectGrid[j, i], Color.Red); //spriteBatch.Draw(gridCell, new Rectangle(i*cellCize, j*cellCize, cellCize, cellCize), Color.Red);
+                        spriteBatch.Draw(gridCell, rectGrid[i, j], Color.Red); //spriteBatch.Draw(gridCell, new Rectangle(i*cellCize, j*cellCize, cellCize, cellCize), Color.Red);
                     }
                     else
-                        spriteBatch.Draw(gridCell, rectGrid[j, i], Color.Gray); //spriteBatch.Draw(gridCell, new Rectangle(i * cellCize, j * cellCize, cellCize, cellCize), Color.Gray);
+                        spriteBatch.Draw(gridCell, rectGrid[i, j], Color.Gray); //spriteBatch.Draw(gridCell, new Rectangle(i * cellCize, j * cellCize, cellCize, cellCize), Color.Gray);
                 }
             }
             spriteBatch.End();
