@@ -19,7 +19,10 @@ namespace minesweeper
         //setting variables to store grid texture information
         Texture2D gridCell;
         Color[] cellColor;
-        
+
+        //store mouse pressed state
+        bool mousePressed = false;
+
         //how big the grid is (gridSize^2) and how many pixels wide each sell is
         int gridSize = 9;
         int cellCize = 24; 
@@ -142,8 +145,15 @@ namespace minesweeper
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
                 Exit();
 
+
             if (mouseState.LeftButton == ButtonState.Pressed)
             {
+                mousePressed = true;
+            }
+
+            if (mousePressed && Mouse.GetState().LeftButton ==  ButtonState.Released)
+            {
+                mousePressed = false;
                 for (int i = 0; i < rectGrid.GetLength(0); i++)
                 {
                     for (int j = 0; j < rectGrid.GetLength(1); j++)
@@ -158,9 +168,8 @@ namespace minesweeper
                     }
                 }
             }
-
-
-                base.Update(gameTime);
+            
+            base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
