@@ -12,21 +12,28 @@ namespace minesweeper
         GraphicsDevice device;
         SpriteBatch spriteBatch;
 
+        //setting variables to store input states
         KeyboardState keyboardState;
         MouseState mouseState;
 
+        //setting variables to store grid texture information
         Texture2D gridCell;
         Color[] cellColor;
         
+        //how big the grid is (gridSize^2) and how many pixels wide each sell is
         int gridSize = 9;
-        int cellCize = 24;
+        int cellCize = 24; 
 
+        //used to spread out random generation of mines
         int mineSpacing = 6;
 
+        //stores each rectangle position of the cells in the grid. so rectGrid[0,0] would match the rectpos of grid[0,0]
         Rectangle[,] rectGrid;
 
+        //stores int values for mines in a grid. 1=mine, 0=no mine. used for game logic
         int[,] grid;
 
+        //store resolution info
         int screenWidth;
         int screenHeight;
 
@@ -43,8 +50,11 @@ namespace minesweeper
 
         protected override void Initialize()
         {
-            mineSpacing = 6;
             this.IsMouseVisible = true;
+
+            screenWidth = device.PresentationParameters.BackBufferWidth;
+            screenHeight = device.PresentationParameters.BackBufferHeight;
+
             base.Initialize();
         }
 
@@ -53,9 +63,6 @@ namespace minesweeper
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             device = graphics.GraphicsDevice;
-
-            screenWidth = device.PresentationParameters.BackBufferWidth;
-            screenHeight = device.PresentationParameters.BackBufferHeight;
 
             Color[] cellColor = new Color[cellCize * cellCize];
             for (int i = 0; i < cellColor.Length; i++)
@@ -79,9 +86,9 @@ namespace minesweeper
             }
 
             // making  the grid = 0
-            for (int i = 0; i < grid.GetLength(1); i++)
+            for (int i = 0; i < grid.GetLength(0); i++)
             {
-                for (int j = 0; j < grid.GetLength(0); j++)
+                for (int j = 0; j < grid.GetLength(1); j++)
                 {
                     grid[i, j] = 0;
                 }
@@ -102,9 +109,9 @@ namespace minesweeper
 
             int m = 0;
             int n = mineSpacing;
-            for (int i = 0; i < grid.GetLength(1); i++)
+            for (int i = 0; i < grid.GetLength(0); i++)
             {
-                for (int j = 0; j < grid.GetLength(0); j++)
+                for (int j = 0; j < grid.GetLength(1); j++)
                 {
 
                     if (rnd.NextDouble() < 0.5 && n >= mineSpacing)
@@ -124,11 +131,6 @@ namespace minesweeper
                 }
             }
 
-        }
-
-        protected override void UnloadContent()
-        {
-            // TODO: Unload any non ContentManager content here
         }
 
         protected override void Update(GameTime gameTime)
@@ -171,10 +173,10 @@ namespace minesweeper
                 {
                     if (grid[i, j] == 1)
                     {
-                        spriteBatch.Draw(gridCell, rectGrid[i, j], Color.Red); //spriteBatch.Draw(gridCell, new Rectangle(i*cellCize, j*cellCize, cellCize, cellCize), Color.Red);
+                        spriteBatch.Draw(gridCell, rectGrid[i, j], Color.Red);
                     }
                     else
-                        spriteBatch.Draw(gridCell, rectGrid[i, j], Color.Gray); //spriteBatch.Draw(gridCell, new Rectangle(i * cellCize, j * cellCize, cellCize, cellCize), Color.Gray);
+                        spriteBatch.Draw(gridCell, rectGrid[i, j], Color.Gray);
                 }
             }
             spriteBatch.End();
