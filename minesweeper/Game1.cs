@@ -33,7 +33,7 @@ namespace minesweeper
         //stores each rectangle position of the cells in the grid. so rectGrid[0,0] would match the rectpos of grid[0,0]
         Rectangle[,] rectGrid;
 
-        //stores int values for mines in a grid. 1=mine, 0=no mine. used for game logic
+        //stores int values for mines in a grid. -1=mine, 0=no mine, n=number of mines touched. used for game logic
         int[,] grid;
 
         //store resolution info
@@ -89,6 +89,12 @@ namespace minesweeper
                 }
             }
 
+            GenerateNewMines();
+            CheckNumberOfMinesAdjacent();
+        }
+
+        void GenerateNewMines()
+        {
             // making  the grid = 0
             for (int i = 0; i < grid.GetLength(0); i++)
             {
@@ -97,17 +103,6 @@ namespace minesweeper
                     grid[i, j] = 0;
                 }
             }
-
-
-            //grid = new int[,] { {0, 1, 0, 0, 0, 0, 0, 0, 0},
-            //                    {0, 0, 0, 0, 0, 0, 0, 0, 0},
-            //                    {0, 0, 0, 0, 0, 0, 0, 0, 0},
-            //                    {0, 0, 1, 0, 0, 0, 0, 0, 0},
-            //                    {0, 0, 0, 0, 1, 0, 0, 0, 0},
-            //                    {0, 0, 0, 0, 0, 0, 0, 0, 0},
-            //                    {0, 0, 0, 0, 1, 0, 0, 0, 0},
-            //                    {0, 0, 0, 0, 0, 0, 0, 0, 0},
-            //                    {0, 0, 0, 0, 1, 0, 0, 0, 0} };  
 
             Random rnd = new Random();
 
@@ -120,7 +115,7 @@ namespace minesweeper
 
                     if (rnd.NextDouble() < 0.5 && n >= mineSpacing)
                     {
-                        grid[i, j] = 1;
+                        grid[i, j] = -1;
                         n = 0;
                         m++;
                     }
@@ -134,7 +129,64 @@ namespace minesweeper
                         break;
                 }
             }
+        }
 
+        void CheckNumberOfMinesAdjacent()
+        {
+            int numberOfMines = 0;
+
+            for (int i = 0; i < grid.GetLength(0); i++)
+            {
+                for (int j = 0; j < grid.GetLength(1); j++)
+                {
+                    if (grid[i, j] == 0)
+                    {
+                        //check row above for mines if there is one
+                        if (i >= 1)
+                        {
+                            if (j >= 1)
+                                if (grid[i - 1, j - 1] == -1)
+                                    numberOfMines++;
+
+                            if (grid[i - 1, j] == -1)
+                                numberOfMines++;
+
+                            if (j != grid.GetLength(1) -1)
+                                if (grid[i - 1, j + 1] == -1)
+                                    numberOfMines++;
+                        }
+
+
+                        //check adjacent cells on same row for mines
+                        if (j >= 1)
+                            if (grid[i, j - 1] == -1)
+                                numberOfMines++;
+
+                        if (j != grid.GetLength(1) - 1)
+                            if (grid[i, j + 1] == -1)
+                                numberOfMines++;
+
+
+                        //check row below for mines
+                        if (i != grid.GetLength(0) - 1)
+                        {
+                            if (j >= 1)
+                                if (grid[i + 1, j - 1] == -1)
+                                    numberOfMines++;
+
+                            if (grid[i + 1, j] == -1)
+                                numberOfMines++;
+
+                            if (j != grid.GetLength(1) - 1)
+                                if (grid[i + 1, j + 1] == -1)
+                                    numberOfMines++;
+                        }
+
+                        grid[i, j] = numberOfMines;
+                        numberOfMines = 0;
+                    }
+                }
+            }
         }
 
         protected override void Update(GameTime gameTime)
@@ -160,7 +212,7 @@ namespace minesweeper
                     {
                         if (rectGrid[i, j].Intersects(new Rectangle(mouseState.X, mouseState.Y, 0, 0)))
                         {
-                            if (grid[i, j] == 1)
+                            if (grid[i, j] == -1)
                             {
                                 Console.WriteLine("Hit mine " + i + " " + j);
                             }
@@ -181,7 +233,7 @@ namespace minesweeper
             {
                 for (int j = 0; j < grid.GetLength(1); j++)
                 {
-                    if (grid[i, j] == 1)
+                    if (grid[i, j] == -1)
                     {
                         spriteBatch.Draw(gridCell, rectGrid[i, j], Color.Red);
                     }
