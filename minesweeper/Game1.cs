@@ -15,10 +15,10 @@ namespace minesweeper
         //setting variables to store input states
         KeyboardState keyboardState;
         MouseState mouseState;
-
-        //setting variables to store grid texture information
-        Texture2D gridCell;
-        Color[] cellColor;
+        
+        //textures for bomb and grid images
+        Texture2D emptyCell;
+        Texture2D bombCell;
 
         //store mouse pressed state
         bool mousePressed = false;
@@ -68,15 +68,9 @@ namespace minesweeper
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            Color[] cellColor = new Color[cellCize * cellCize];
-            for (int i = 0; i < cellColor.Length; i++)
-            {
-                cellColor[i] = Color.White;
-            }
-
-            gridCell = new Texture2D(device, cellCize, cellCize, false, SurfaceFormat.Color); 
-            gridCell.SetData<Color>(cellColor);
-
+            emptyCell = Content.Load<Texture2D>("emptyCell");
+            bombCell = Content.Load<Texture2D>("bombCell");
+            
             grid = new int[gridSize, gridSize];
 
             rectGrid = new Rectangle[gridSize, gridSize];
@@ -237,10 +231,10 @@ namespace minesweeper
                 {
                     if (grid[i, j] == -1)
                     {
-                        spriteBatch.Draw(gridCell, rectGrid[i, j], Color.Red);
+                        spriteBatch.Draw(bombCell, rectGrid[i, j], Color.Red);
                     }
                     else
-                        spriteBatch.Draw(gridCell, rectGrid[i, j], Color.Gray);
+                        spriteBatch.Draw(emptyCell, rectGrid[i, j], Color.Gray);
                 }
             }
             spriteBatch.End();
