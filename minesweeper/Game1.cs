@@ -26,9 +26,7 @@ namespace minesweeper
 
         //store mouse pressed state
         bool mousePressed = false;
-
-        bool canClick = true;
-
+        
         //how big the grid is (gridSize^2) and how many pixels wide each sell is
         int gridSize = 9;
         int cellCize = 24; 
@@ -42,6 +40,7 @@ namespace minesweeper
 
         //listed containing any cells that have been clicked already
         List<Rectangle> clickedCells;
+        List<int[]> clickStack;
 
         //stores int values for mines in a grid. -1=mine, 0=no mine, n=number of mines touched. used for game logic
         int[,] grid;
@@ -81,6 +80,8 @@ namespace minesweeper
             //make a new list with one rect outside the playfield
             clickedCells = new List<Rectangle>();
             clickedCells.Add(new Rectangle(-1, -1, 0, 0));
+
+            clickStack = new List<int[]>();
 
             //load images for empty and bomb cells
             emptyCell = Content.Load<Texture2D>("emptyCell");
@@ -217,11 +218,10 @@ namespace minesweeper
                 mousePressed = true;
             }
 
-            if (mousePressed && Mouse.GetState().LeftButton == ButtonState.Released && canClick)
+            if (mousePressed && Mouse.GetState().LeftButton == ButtonState.Released)
             {
                 mousePressed = false;
 
-                canClick = false;
                 for (int i = 0; i < rectGrid.GetLength(0); i++)
                 {
                     for (int j = 0; j < rectGrid.GetLength(1); j++)
@@ -239,39 +239,57 @@ namespace minesweeper
 
         void ClickCell(Rectangle clickedCell, int i, int j)
         {
-            if (i >= 0 && j >= 0)
+            Rectangle lastCell = new Rectangle();
+
+            if (grid[i, j] == -1)
             {
-                if (grid[i, j] == -1)
-                {
-                    // TODO: hit mine logic
-                }
+                // TODO: hit mine logic
+            }
 
-                Console.WriteLine(clickedCells.Count.ToString());
+            Console.WriteLine(clickedCells.Count.ToString());
                 
-                foreach (Rectangle cell in clickedCells)
-                {
-                    if (cell.X >= 0 && cell.Y >= 0 || true)
-                    {
-                        //if you hadn't clicked the cell add it to the clicked list and click all surrounding cells
-                        if (!cell.Intersects(clickedCell))
-                        {
-                            overlayGrid[i, j].Width = 0;
+            foreach (Rectangle cell in clickedCells)
+            {
 
-                            ClickCell(clickedCell, i - 1, j - 1);
-                            ClickCell(clickedCell, i - 1, j);
-                            ClickCell(clickedCell, i - 1, j + 1);
-                            ClickCell(clickedCell, i, j - 1);
-                            ClickCell(clickedCell, i, j + 1);
-                            ClickCell(clickedCell, i + 1, j - 1);
-                            ClickCell(clickedCell, i + 1, j);
-                            ClickCell(clickedCell, i + 1, j + 1);
+                if (cell.X != -1)
+                {
+                    //if you hadn't clicked the cell add it to the clicked list and click all surrounding cells
+                    if (!clickedCell.Intersects(cell))
+                    {
+                        overlayGrid[i, j].Width = 0;
+
+                        if (i > 1)
+                        {
+                            clickStack.Add(new int[] { i - 1, j + 1 });
+                            clickStack.Add(new int[] { i - 1, j });
+                            if (j > 1)
+                                clickStack.Add(new int[] { i - 1, j - 1 });
                         }
+                        if (j > 1)
+                        {
+                            clickStack.Add(new int[] { i, j - 1 });
+                            clickStack.Add(new int[] { i + 1, j - 1 });
+                        }
+                        clickStack.Add(new int[] { i, j + 1 });
+                        clickStack.Add(new int[] { i + 1, j + 1 });
+                        clickStack.Add(new int[] { i + 1, j });
+
+                        lastCell = clickedCell;
+                        //stack overflow \:D/
+                        //ClickCell(clickedCell, i - 1, j - 1);
+                        //ClickCell(clickedCell, i - 1, j);
+                        //ClickCell(clickedCell, i - 1, j + 1);
+                        //ClickCell(clickedCell, i, j - 1);
+                        //ClickCell(clickedCell, i, j + 1);
+                        //ClickCell(clickedCell, i + 1, j - 1);
+                        //ClickCell(clickedCell, i + 1, j);
+                        //ClickCell(clickedCell, i + 1, j + 1);
                     }
                 }
-
-                clickedCells.Add(clickedCell);
             }
-            canClick = true;
+
+            if(lastCell != null)
+                clickedCells.Add(lastCell);
         }
 
         protected override void Draw(GameTime gameTime)
