@@ -27,6 +27,8 @@ namespace minesweeper
         //store mouse pressed state
         bool mousePressed = false;
 
+        bool canClick = true;
+
         //how big the grid is (gridSize^2) and how many pixels wide each sell is
         int gridSize = 9;
         int cellCize = 24; 
@@ -215,9 +217,11 @@ namespace minesweeper
                 mousePressed = true;
             }
 
-            if (mousePressed && Mouse.GetState().LeftButton ==  ButtonState.Released)
+            if (mousePressed && Mouse.GetState().LeftButton == ButtonState.Released && canClick)
             {
                 mousePressed = false;
+
+                canClick = false;
                 for (int i = 0; i < rectGrid.GetLength(0); i++)
                 {
                     for (int j = 0; j < rectGrid.GetLength(1); j++)
@@ -242,27 +246,32 @@ namespace minesweeper
                     // TODO: hit mine logic
                 }
 
+                Console.WriteLine(clickedCells.Count.ToString());
+                
                 foreach (Rectangle cell in clickedCells)
                 {
-                    //if you hadn't clicked the cell add it to the clicked list and click all surrounding cells
-                    if (!clickedCell.Intersects(cell))
+                    if (cell.X >= 0 && cell.Y >= 0 || true)
                     {
-                        clickedCells.Add(clickedCell);
+                        //if you hadn't clicked the cell add it to the clicked list and click all surrounding cells
+                        if (!cell.Intersects(clickedCell))
+                        {
+                            overlayGrid[i, j].Width = 0;
 
-                        overlayGrid[i, j].Width = 0;
-
-                        ClickCell(clickedCell, i - 1, j - 1);
-                        ClickCell(clickedCell, i - 1, j    );
-                        ClickCell(clickedCell, i - 1, j + 1);
-                        ClickCell(clickedCell, i    , j - 1);
-                        ClickCell(clickedCell, i    , j + 1);
-                        ClickCell(clickedCell, i + 1, j - 1);
-                        ClickCell(clickedCell, i + 1, j    );
-                        ClickCell(clickedCell, i + 1, j + 1);
+                            ClickCell(clickedCell, i - 1, j - 1);
+                            ClickCell(clickedCell, i - 1, j);
+                            ClickCell(clickedCell, i - 1, j + 1);
+                            ClickCell(clickedCell, i, j - 1);
+                            ClickCell(clickedCell, i, j + 1);
+                            ClickCell(clickedCell, i + 1, j - 1);
+                            ClickCell(clickedCell, i + 1, j);
+                            ClickCell(clickedCell, i + 1, j + 1);
+                        }
                     }
                 }
-            }
 
+                clickedCells.Add(clickedCell);
+            }
+            canClick = true;
         }
 
         protected override void Draw(GameTime gameTime)
