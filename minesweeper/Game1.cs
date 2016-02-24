@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -37,6 +38,9 @@ namespace minesweeper
         Rectangle[,] rectGrid;
         Rectangle[,] overlayGrid;
 
+        //listed containing any cells that have been clicked already
+        List<Rectangle> clickedCells;
+
         //stores int values for mines in a grid. -1=mine, 0=no mine, n=number of mines touched. used for game logic
         int[,] grid;
 
@@ -71,6 +75,10 @@ namespace minesweeper
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            //make a new list with one rect outside the playfield
+            clickedCells = new List<Rectangle>();
+            clickedCells.Add(new Rectangle(-1, -1, 0, 0));
 
             //load images for empty and bomb cells
             emptyCell = Content.Load<Texture2D>("emptyCell");
@@ -127,7 +135,7 @@ namespace minesweeper
                     }
                     n++;
 
-                    if (m >= gridSize)
+                    if (m >= gridSize/* *gridSize */)
                         break;
                 }
             }
@@ -216,19 +224,45 @@ namespace minesweeper
                     {
                         if (rectGrid[i, j].Intersects(new Rectangle(mouseState.X, mouseState.Y, 0, 0)))
                         {
-                            overlayGrid[i, j].Width = 0;
-                            overlayGrid[i, j].Height = 0;
-                            if (grid[i, j] == -1)
-                            {
-                                // TODO: hit mine logic
-                            }
-                            Console.WriteLine("cell value: " + grid[i, j]);
+                            ClickCell(rectGrid[i, j], i, j);
                         }
                     }
                 }
             }
             
             base.Update(gameTime);
+        }
+
+        void ClickCell(Rectangle clickedCell, int i, int j)
+        {
+            if (i >= 0 && j >= 0)
+            {
+                if (grid[i, j] == -1)
+                {
+                    // TODO: hit mine logic
+                }
+
+                foreach (Rectangle cell in clickedCells)
+                {
+                    //if you hadn't clicked the cell add it to the clicked list and click all surrounding cells
+                    if (!clickedCell.Intersects(cell))
+                    {
+                        clickedCells.Add(clickedCell);
+
+                        overlayGrid[i, j].Width = 0;
+
+                        ClickCell(clickedCell, i - 1, j - 1);
+                        ClickCell(clickedCell, i - 1, j    );
+                        ClickCell(clickedCell, i - 1, j + 1);
+                        ClickCell(clickedCell, i    , j - 1);
+                        ClickCell(clickedCell, i    , j + 1);
+                        ClickCell(clickedCell, i + 1, j - 1);
+                        ClickCell(clickedCell, i + 1, j    );
+                        ClickCell(clickedCell, i + 1, j + 1);
+                    }
+                }
+            }
+
         }
 
         protected override void Draw(GameTime gameTime)
@@ -282,7 +316,7 @@ namespace minesweeper
                         }
                     }
                     if (overlayGrid[i, j].Width != 0 && overlayGrid[i, j].Height != 0)
-                        spriteBatch.Draw(overlayCell, overlayGrid[i, j], Color.White);
+                        spriteBatch.Draw(overlayCell, overlayGrid[i, j], Color.White * 0.7f);
                 }
             }
             spriteBatch.End();
