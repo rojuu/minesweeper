@@ -18,6 +18,7 @@ namespace minesweeper
         
         //textures for bomb and grid images
         Texture2D emptyCell;
+        Texture2D overlayCell;
         Texture2D bombCell;
 
         SpriteFont arial12;
@@ -34,6 +35,7 @@ namespace minesweeper
 
         //stores each rectangle position of the cells in the grid. so rectGrid[0,0] would match the rectpos of grid[0,0]
         Rectangle[,] rectGrid;
+        Rectangle[,] overlayGrid;
 
         //stores int values for mines in a grid. -1=mine, 0=no mine, n=number of mines touched. used for game logic
         int[,] grid;
@@ -72,6 +74,7 @@ namespace minesweeper
 
             //load images for empty and bomb cells
             emptyCell = Content.Load<Texture2D>("emptyCell");
+            overlayCell = Content.Load<Texture2D>("overlayCell");
             bombCell = Content.Load<Texture2D>("bombCell");
 
             arial12 = Content.Load<SpriteFont>("Arial12");
@@ -79,12 +82,14 @@ namespace minesweeper
             grid = new int[gridSize, gridSize];
 
             rectGrid = new Rectangle[gridSize, gridSize];
+            overlayGrid = new Rectangle[gridSize, gridSize];
 
             for (int i = 0; i < gridSize; i++)
             {
                 for (int j = 0; j < gridSize; j++)
                 {
                     rectGrid[j, i] = new Rectangle(i * cellCize, j * cellCize, cellCize, cellCize);
+                    overlayGrid[j, i] = new Rectangle(i * cellCize, j * cellCize, cellCize, cellCize);
                 }
             }
 
@@ -110,7 +115,6 @@ namespace minesweeper
             {
                 for (int j = 0; j < grid.GetLength(1); j++)
                 {
-
                     if (rnd.NextDouble() < 0.5 && n >= mineSpacing)
                     {
                         grid[i, j] = -1;
@@ -212,6 +216,8 @@ namespace minesweeper
                     {
                         if (rectGrid[i, j].Intersects(new Rectangle(mouseState.X, mouseState.Y, 0, 0)))
                         {
+                            overlayGrid[i, j].Width = 0;
+                            overlayGrid[i, j].Height = 0;
                             if (grid[i, j] == -1)
                             {
                                 // TODO: hit mine logic
@@ -263,18 +269,20 @@ namespace minesweeper
                                 spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.DarkRed);
                                 break;
                             case 6:
-                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.White);
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.HotPink);
                                 break;
                             case 7:
-                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.White);
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.LemonChiffon);
                                 break;
                             case 8:
-                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.White);
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.Tomato);
                                 break;
                             default:
                                 break;
                         }
                     }
+                    if (overlayGrid[i, j].Width != 0 && overlayGrid[i, j].Height != 0)
+                        spriteBatch.Draw(overlayCell, overlayGrid[i, j], Color.White);
                 }
             }
             spriteBatch.End();
