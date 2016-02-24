@@ -20,6 +20,8 @@ namespace minesweeper
         Texture2D emptyCell;
         Texture2D bombCell;
 
+        SpriteFont arial12;
+
         //store mouse pressed state
         bool mousePressed = false;
 
@@ -68,9 +70,12 @@ namespace minesweeper
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            //load images for empty and bomb cells
             emptyCell = Content.Load<Texture2D>("emptyCell");
             bombCell = Content.Load<Texture2D>("bombCell");
-            
+
+            arial12 = Content.Load<SpriteFont>("Arial12");
+
             grid = new int[gridSize, gridSize];
 
             rectGrid = new Rectangle[gridSize, gridSize];
@@ -231,10 +236,45 @@ namespace minesweeper
                 {
                     if (grid[i, j] == -1)
                     {
-                        spriteBatch.Draw(bombCell, rectGrid[i, j], Color.Red);
+                        spriteBatch.Draw(bombCell, rectGrid[i, j], Color.White);
+                    }
+                    else if (grid[i, j] == 0)
+                    {
+                        spriteBatch.Draw(emptyCell, rectGrid[i, j], Color.White);
                     }
                     else
-                        spriteBatch.Draw(emptyCell, rectGrid[i, j], Color.Gray);
+                    {
+                        spriteBatch.Draw(emptyCell, rectGrid[i, j], Color.White);
+                        switch (grid[i, j])
+                        {
+                            case 1:
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.Green);
+                                break;
+                            case 2:
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.Blue);
+                                break;
+                            case 3:
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.Red);
+                                break;
+                            case 4:
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.Purple);
+                                break;
+                            case 5:
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.DarkRed);
+                                break;
+                            case 6:
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.White);
+                                break;
+                            case 7:
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.White);
+                                break;
+                            case 8:
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.White);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                 }
             }
             spriteBatch.End();
