@@ -16,11 +16,13 @@ namespace minesweeper
         //setting variables to store input states
         KeyboardState keyboardState;
         MouseState mouseState;
-        
+
         //textures for bomb and grid images
         Texture2D emptyCell;
         Texture2D overlayCell;
         Texture2D bombCell;
+
+        Cell[,] cells;
 
         SpriteFont arial12;
 
@@ -29,13 +31,13 @@ namespace minesweeper
         
         //how big the grid is (gridSize^2) and how many pixels wide each sell is
         int gridSize = 9;
-        int cellCize = 24; 
+        int cellSize = 24;
 
         //used to spread out random generation of mines
         int mineSpacing = 6;
 
-        //stores each rectangle position of the cells in the grid. so rectGrid[0,0] would match the rectpos of grid[0,0]
-        Rectangle[,] rectGrid;
+        //stores each rectangle position of the cells in the grid. so rectGrid[0,0] would match the rectPos of grid[0,0]
+        //Rectangle[,] rectGrid;
         Rectangle[,] overlayGrid;
 
         //listed containing any cells that have been clicked already
@@ -54,8 +56,9 @@ namespace minesweeper
             graphics = new GraphicsDeviceManager(this);
             device = graphics.GraphicsDevice;
             graphics.IsFullScreen = false;
-            graphics.PreferredBackBufferHeight = cellCize * gridSize;
-            graphics.PreferredBackBufferWidth = cellCize * gridSize;
+            
+            graphics.PreferredBackBufferHeight = cellSize * gridSize;
+            graphics.PreferredBackBufferWidth = cellSize * gridSize;
 
             Content.RootDirectory = "Content";
         }
@@ -87,20 +90,23 @@ namespace minesweeper
             emptyCell = Content.Load<Texture2D>("emptyCell");
             overlayCell = Content.Load<Texture2D>("overlayCell");
             bombCell = Content.Load<Texture2D>("bombCell");
-
+            
+            cells = new Cell[gridSize, gridSize];
+            
             arial12 = Content.Load<SpriteFont>("Arial12");
 
             grid = new int[gridSize, gridSize];
 
-            rectGrid = new Rectangle[gridSize, gridSize];
+            //rectGrid = new Rectangle[gridSize, gridSize];
             overlayGrid = new Rectangle[gridSize, gridSize];
 
             for (int i = 0; i < gridSize; i++)
             {
                 for (int j = 0; j < gridSize; j++)
                 {
-                    rectGrid[j, i] = new Rectangle(i * cellCize, j * cellCize, cellCize, cellCize);
-                    overlayGrid[j, i] = new Rectangle(i * cellCize, j * cellCize, cellCize, cellCize);
+                    //rectGrid[j, i] = new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize);
+                    cells[i, j] = new Cell(new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize));
+                    overlayGrid[j, i] = new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize);
                 }
             }
 
@@ -129,6 +135,7 @@ namespace minesweeper
                     if (rnd.NextDouble() < 0.5 && n >= mineSpacing)
                     {
                         grid[i, j] = -1;
+                        cells[i, j].IsBomb = true;
                         n = 0;
                         m++;
                     }
@@ -217,18 +224,21 @@ namespace minesweeper
             {
                 mousePressed = true;
             }
-
+            
             if (mousePressed && Mouse.GetState().LeftButton == ButtonState.Released)
             {
                 mousePressed = false;
 
-                for (int i = 0; i < rectGrid.GetLength(0); i++)
+                for (int i = 0; i < grid.GetLength(0); i++)
                 {
-                    for (int j = 0; j < rectGrid.GetLength(1); j++)
+                    for (int j = 0; j < grid.GetLength(1); j++)
                     {
-                        if (rectGrid[i, j].Intersects(new Rectangle(mouseState.X, mouseState.Y, 0, 0)))
+                        if (cells[i, j].rectPos.Intersects(new Rectangle(mouseState.X, mouseState.Y, 0, 0)))
                         {
-                            ClickCell(rectGrid[i, j], i, j);
+                            cells[i, j].Click();
+                            overlayGrid[i, j].Width = 0;
+                            overlayGrid[i, j].Height = 0;
+                            Console.WriteLine(grid[i, j]);
                         }
                     }
                 }
@@ -237,60 +247,60 @@ namespace minesweeper
             base.Update(gameTime);
         }
 
-        void ClickCell(Rectangle clickedCell, int i, int j)
-        {
-            Rectangle lastCell = new Rectangle();
+        //void ClickCell(Rectangle clickedCell, int i, int j)
+        //{
+        //    Rectangle lastCell = new Rectangle();
 
-            if (grid[i, j] == -1)
-            {
-                // TODO: hit mine logic
-            }
+        //    if (grid[i, j] == -1)
+        //    {
+        //        // TODO: hit mine logic
+        //    }
 
-            Console.WriteLine(clickedCells.Count.ToString());
+        //    Console.WriteLine(clickedCells.Count.ToString());
                 
-            foreach (Rectangle cell in clickedCells)
-            {
+        //    foreach (Rectangle cell in clickedCells)
+        //    {
 
-                if (cell.X != -1)
-                {
-                    //if you hadn't clicked the cell add it to the clicked list and click all surrounding cells
-                    if (!clickedCell.Intersects(cell))
-                    {
-                        overlayGrid[i, j].Width = 0;
+        //        if (cell.X != -1)
+        //        {
+        //            //if you hadn't clicked the cell add it to the clicked list and click all surrounding cells
+        //            if (!clickedCell.Intersects(cell))
+        //            {
+        //                overlayGrid[i, j].Width = 0;
 
-                        if (i > 1)
-                        {
-                            clickStack.Add(new int[] { i - 1, j + 1 });
-                            clickStack.Add(new int[] { i - 1, j });
-                            if (j > 1)
-                                clickStack.Add(new int[] { i - 1, j - 1 });
-                        }
-                        if (j > 1)
-                        {
-                            clickStack.Add(new int[] { i, j - 1 });
-                            clickStack.Add(new int[] { i + 1, j - 1 });
-                        }
-                        clickStack.Add(new int[] { i, j + 1 });
-                        clickStack.Add(new int[] { i + 1, j + 1 });
-                        clickStack.Add(new int[] { i + 1, j });
+        //                if (i > 1)
+        //                {
+        //                    clickStack.Add(new int[] { i - 1, j + 1 });
+        //                    clickStack.Add(new int[] { i - 1, j });
+        //                    if (j > 1)
+        //                        clickStack.Add(new int[] { i - 1, j - 1 });
+        //                }
+        //                if (j > 1)
+        //                {
+        //                    clickStack.Add(new int[] { i, j - 1 });
+        //                    clickStack.Add(new int[] { i + 1, j - 1 });
+        //                }
+        //                clickStack.Add(new int[] { i, j + 1 });
+        //                clickStack.Add(new int[] { i + 1, j + 1 });
+        //                clickStack.Add(new int[] { i + 1, j });
 
-                        lastCell = clickedCell;
-                        //stack overflow \:D/
-                        //ClickCell(clickedCell, i - 1, j - 1);
-                        //ClickCell(clickedCell, i - 1, j);
-                        //ClickCell(clickedCell, i - 1, j + 1);
-                        //ClickCell(clickedCell, i, j - 1);
-                        //ClickCell(clickedCell, i, j + 1);
-                        //ClickCell(clickedCell, i + 1, j - 1);
-                        //ClickCell(clickedCell, i + 1, j);
-                        //ClickCell(clickedCell, i + 1, j + 1);
-                    }
-                }
-            }
+        //                lastCell = clickedCell;
+        //                //stack overflow \:D/
+        //                //ClickCell(clickedCell, i - 1, j - 1);
+        //                //ClickCell(clickedCell, i - 1, j);
+        //                //ClickCell(clickedCell, i - 1, j + 1);
+        //                //ClickCell(clickedCell, i, j - 1);
+        //                //ClickCell(clickedCell, i, j + 1);
+        //                //ClickCell(clickedCell, i + 1, j - 1);
+        //                //ClickCell(clickedCell, i + 1, j);
+        //                //ClickCell(clickedCell, i + 1, j + 1);
+        //            }
+        //        }
+        //    }
 
-            if(lastCell != null)
-                clickedCells.Add(lastCell);
-        }
+        //    if(lastCell != null)
+        //        clickedCells.Add(lastCell);
+        //}
 
         protected override void Draw(GameTime gameTime)
         {
@@ -303,40 +313,40 @@ namespace minesweeper
                 {
                     if (grid[i, j] == -1)
                     {
-                        spriteBatch.Draw(bombCell, rectGrid[i, j], Color.White);
+                        spriteBatch.Draw(bombCell, cells[i, j].rectPos, Color.White);
                     }
                     else if (grid[i, j] == 0)
                     {
-                        spriteBatch.Draw(emptyCell, rectGrid[i, j], Color.White);
+                        spriteBatch.Draw(emptyCell, cells[i, j].rectPos, Color.White);
                     }
                     else
                     {
-                        spriteBatch.Draw(emptyCell, rectGrid[i, j], Color.White);
+                        spriteBatch.Draw(emptyCell, cells[i, j].rectPos, Color.White);
                         switch (grid[i, j])
                         {
                             case 1:
-                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.Green);
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(cells[i, j].rectPos.X + 6, cells[i, j].rectPos.Y + 4), Color.Green);
                                 break;
                             case 2:
-                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.Blue);
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(cells[i, j].rectPos.X + 6, cells[i, j].rectPos.Y + 4), Color.Blue);
                                 break;
                             case 3:
-                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.Red);
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(cells[i, j].rectPos.X + 6, cells[i, j].rectPos.Y + 4), Color.Red);
                                 break;
                             case 4:
-                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.Purple);
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(cells[i, j].rectPos.X + 6, cells[i, j].rectPos.Y + 4), Color.Purple);
                                 break;
                             case 5:
-                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.DarkRed);
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(cells[i, j].rectPos.X + 6, cells[i, j].rectPos.Y + 4), Color.DarkRed);
                                 break;
                             case 6:
-                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.HotPink);
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(cells[i, j].rectPos.X + 6, cells[i, j].rectPos.Y + 4), Color.HotPink);
                                 break;
                             case 7:
-                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.LemonChiffon);
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(cells[i, j].rectPos.X + 6, cells[i, j].rectPos.Y + 4), Color.LemonChiffon);
                                 break;
                             case 8:
-                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(rectGrid[i, j].X + 6, rectGrid[i, j].Y + 4), Color.Tomato);
+                                spriteBatch.DrawString(arial12, grid[i, j].ToString(), new Vector2(cells[i, j].rectPos.X + 6, cells[i, j].rectPos.Y + 4), Color.Tomato);
                                 break;
                             default:
                                 break;
