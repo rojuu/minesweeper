@@ -65,20 +65,6 @@ namespace minesweeper
             Content.RootDirectory = "Content";
         }
 
-        public Game1(EndScreen endScreen)
-        {
-            endScreen.Exit();
-
-            graphics = new GraphicsDeviceManager(this);
-            device = graphics.GraphicsDevice;
-            graphics.IsFullScreen = false;
-
-            graphics.PreferredBackBufferHeight = cellSize * gridSize;
-            graphics.PreferredBackBufferWidth = cellSize * gridSize;
-
-            Content.RootDirectory = "Content";
-        }
-
         protected override void Initialize()
         {
             this.IsMouseVisible = true;
@@ -258,8 +244,7 @@ namespace minesweeper
 
             if (hitBomb)
             {
-                EndScreen end = new EndScreen(this, screenWidth, screenHeight);
-                end.Run();
+
             }
 
             base.Update(gameTime);
