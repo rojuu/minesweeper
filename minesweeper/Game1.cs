@@ -97,6 +97,8 @@ namespace minesweeper
 
             grid = new int[gridSize, gridSize];
 
+            GenerateNewMineGrid();
+
             //rectGrid = new Rectangle[gridSize, gridSize];
             overlayGrid = new Rectangle[gridSize, gridSize];
 
@@ -105,12 +107,10 @@ namespace minesweeper
                 for (int j = 0; j < gridSize; j++)
                 {
                     //rectGrid[j, i] = new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize);
-                    cells[i, j] = new Cell(new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize), j, i);
+                    cells[i, j] = new Cell(new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize), j, i, grid[i, j]);
                     overlayGrid[i, j] = new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize);
                 }
             }
-
-            GenerateNewMineGrid();
         }
 
         void GenerateNewMineGrid()
@@ -135,7 +135,6 @@ namespace minesweeper
                     if (rnd.NextDouble() < 0.5 && n >= mineSpacing)
                     {
                         grid[i, j] = -1;
-                        cells[i, j].IsBomb = true;
                         n = 0;
                         m++;
                     }
@@ -235,7 +234,7 @@ namespace minesweeper
                     {
                         if (cells[i, j].rectPos.Intersects(new Rectangle(mouseState.X, mouseState.Y, 0, 0)))
                         {
-                            cells[i, j].Click(ref overlayGrid);
+                            cells[i, j].Click(ref overlayGrid, ref cells);
                         }
                     }
                 }
