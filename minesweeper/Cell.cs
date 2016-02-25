@@ -47,7 +47,13 @@ namespace minesweeper
             adjacentCells = new List<Cell>();
         }
 
-        public void Click(ref Rectangle[,] OverlayGrid, ref Cell[,] CellGrid)
+        /// <summary>
+        /// Clicks on self. If cell was empty, clicks any adjacent cells that are not bombs. Returns true if bomb was hit.
+        /// </summary>
+        /// <param name="OverlayGrid">overlayGrid array</param>
+        /// <param name="CellGrid">cellGrid array</param>
+        /// <returns></returns>
+        public bool Click(ref Rectangle[,] OverlayGrid, ref Cell[,] CellGrid)
         {
             isClicked = true;
             OverlayGrid[gridY, gridX].Width = 0;
@@ -55,7 +61,7 @@ namespace minesweeper
             
             if (cellVal == -1)
             {
-                //hit bomb
+                return true;
             }
             else if (cellVal == 0)
             {
@@ -66,6 +72,9 @@ namespace minesweeper
                         c.Click(ref OverlayGrid, ref CellGrid);
                 }
             }
+
+
+            return false;
         }
 
         private void FindAdjacentCells(ref Cell[,] CellGrid)

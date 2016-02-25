@@ -28,6 +28,8 @@ namespace minesweeper
 
         //store mouse pressed state
         bool mousePressed = false;
+
+        bool hitBomb = false;
         
         //how big the grid is (gridSize^2) and how many pixels wide each sell is
         int gridSize = 9;
@@ -57,6 +59,20 @@ namespace minesweeper
             device = graphics.GraphicsDevice;
             graphics.IsFullScreen = false;
             
+            graphics.PreferredBackBufferHeight = cellSize * gridSize;
+            graphics.PreferredBackBufferWidth = cellSize * gridSize;
+
+            Content.RootDirectory = "Content";
+        }
+
+        public Game1(EndScreen endScreen)
+        {
+            endScreen.Exit();
+
+            graphics = new GraphicsDeviceManager(this);
+            device = graphics.GraphicsDevice;
+            graphics.IsFullScreen = false;
+
             graphics.PreferredBackBufferHeight = cellSize * gridSize;
             graphics.PreferredBackBufferWidth = cellSize * gridSize;
 
@@ -234,75 +250,27 @@ namespace minesweeper
                     {
                         if (cells[i, j].rectPos.Intersects(new Rectangle(mouseState.X, mouseState.Y, 0, 0)))
                         {
-                            cells[i, j].Click(ref overlayGrid, ref cells);
+                            hitBomb = cells[i, j].Click(ref overlayGrid, ref cells);
                         }
                     }
                 }
             }
-            
+
+            if (hitBomb)
+            {
+                EndScreen end = new EndScreen(this, screenWidth, screenHeight);
+                end.Run();
+            }
+
             base.Update(gameTime);
         }
-
-        //void ClickCell(Rectangle clickedCell, int i, int j)
-        //{
-        //    Rectangle lastCell = new Rectangle();
-
-        //    if (grid[i, j] == -1)
-        //    {
-        //        // TODO: hit mine logic
-        //    }
-
-        //    Console.WriteLine(clickedCells.Count.ToString());
-                
-        //    foreach (Rectangle cell in clickedCells)
-        //    {
-
-        //        if (cell.X != -1)
-        //        {
-        //            //if you hadn't clicked the cell add it to the clicked list and click all surrounding cells
-        //            if (!clickedCell.Intersects(cell))
-        //            {
-        //                overlayGrid[i, j].Width = 0;
-
-        //                if (i > 1)
-        //                {
-        //                    clickStack.Add(new int[] { i - 1, j + 1 });
-        //                    clickStack.Add(new int[] { i - 1, j });
-        //                    if (j > 1)
-        //                        clickStack.Add(new int[] { i - 1, j - 1 });
-        //                }
-        //                if (j > 1)
-        //                {
-        //                    clickStack.Add(new int[] { i, j - 1 });
-        //                    clickStack.Add(new int[] { i + 1, j - 1 });
-        //                }
-        //                clickStack.Add(new int[] { i, j + 1 });
-        //                clickStack.Add(new int[] { i + 1, j + 1 });
-        //                clickStack.Add(new int[] { i + 1, j });
-
-        //                lastCell = clickedCell;
-        //                //stack overflow \:D/
-        //                //ClickCell(clickedCell, i - 1, j - 1);
-        //                //ClickCell(clickedCell, i - 1, j);
-        //                //ClickCell(clickedCell, i - 1, j + 1);
-        //                //ClickCell(clickedCell, i, j - 1);
-        //                //ClickCell(clickedCell, i, j + 1);
-        //                //ClickCell(clickedCell, i + 1, j - 1);
-        //                //ClickCell(clickedCell, i + 1, j);
-        //                //ClickCell(clickedCell, i + 1, j + 1);
-        //            }
-        //        }
-        //    }
-
-        //    if(lastCell != null)
-        //        clickedCells.Add(lastCell);
-        //}
-
+        
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.DimGray);
 
             spriteBatch.Begin();
+
             for (int i = 0; i < grid.GetLength(0); i++)
             {
                 for (int j = 0; j < grid.GetLength(1); j++)
@@ -352,6 +320,7 @@ namespace minesweeper
                         spriteBatch.Draw(overlayCell, overlayGrid[i, j], Color.White * 0.7f);
                 }
             }
+            
             spriteBatch.End();
 
             base.Draw(gameTime);
