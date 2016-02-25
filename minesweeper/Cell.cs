@@ -15,12 +15,11 @@ namespace minesweeper
         //Texture2D bombCell;
 
         public Rectangle rectPos;
-
-        //cellSize in pixels
-        //int cellSize;
-
+        
         bool isClicked = false;
         bool isBomb = false;
+        
+        int gridX, gridY;
         
         public bool IsBomb
         {
@@ -28,18 +27,18 @@ namespace minesweeper
             set { isBomb = value;  }
         }
 
-        public Cell(/*Texture2D EmptyCell, Texture2D OverlayCell, Texture2D BombCell, int CellSize,*/Rectangle RectanglePosition)
+        public Cell(Rectangle RectPos, int GridX, int GridY)
         {
-            //emptyCell = EmptyCell;
-            //overlayCell = OverlayCell;
-            //bombCell = BombCell;
-            //cellSize = CellSize;
-            rectPos = RectanglePosition;
+            rectPos = RectPos;
+            gridX = GridX;
+            gridY = GridY;
         }
 
-        public void Click()
+        public void Click(ref Rectangle[,] OverlayGrid)
         {
-
+            isClicked = true;
+            OverlayGrid[gridY, gridX].Width = 0;
+            OverlayGrid[gridY, gridX].Height = 0;
         }
     }
 }

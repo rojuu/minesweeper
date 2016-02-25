@@ -105,8 +105,8 @@ namespace minesweeper
                 for (int j = 0; j < gridSize; j++)
                 {
                     //rectGrid[j, i] = new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize);
-                    cells[i, j] = new Cell(new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize));
-                    overlayGrid[j, i] = new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize);
+                    cells[i, j] = new Cell(new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize), j, i);
+                    overlayGrid[i, j] = new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize);
                 }
             }
 
@@ -235,10 +235,7 @@ namespace minesweeper
                     {
                         if (cells[i, j].rectPos.Intersects(new Rectangle(mouseState.X, mouseState.Y, 0, 0)))
                         {
-                            cells[i, j].Click();
-                            overlayGrid[i, j].Width = 0;
-                            overlayGrid[i, j].Height = 0;
-                            Console.WriteLine(grid[i, j]);
+                            cells[i, j].Click(ref overlayGrid);
                         }
                     }
                 }
