@@ -23,12 +23,14 @@ namespace minesweeper
         Texture2D bombCell;
         Texture2D lostScreen;
         Texture2D wonScreen;
+        Texture2D flag;
 
         Cell[,] cells;
 
         SpriteFont arial12;
 
         bool mousePressed = false;
+        bool mouse2Pressed = false;
         bool wonGame = false;
         bool hitBomb = false;
         
@@ -95,7 +97,8 @@ namespace minesweeper
             bombCell = Content.Load<Texture2D>("bombCell");
             lostScreen = Content.Load<Texture2D>("lostScreen");
             wonScreen = Content.Load<Texture2D>("wonScreen");
-            
+            flag = Content.Load<Texture2D>("flag");
+
             cells = new Cell[gridSize, gridSize];
             
             arial12 = Content.Load<SpriteFont>("Arial12");
@@ -226,6 +229,10 @@ namespace minesweeper
             {
                 mousePressed = true;
             }
+            else if (mouseState.RightButton == ButtonState.Pressed)
+            {
+                mouse2Pressed = true;
+            }
             
             if (mousePressed && Mouse.GetState().LeftButton == ButtonState.Released)
             {
@@ -265,6 +272,24 @@ namespace minesweeper
                         wonGame = true;
                     }
                 }
+            }
+
+            if (mouse2Pressed && Mouse.GetState().RightButton == ButtonState.Released)
+            {
+                mouse2Pressed = false;
+                for (int i = 0; i < grid.GetLength(0); i++)
+                {
+                    for (int j = 0; j < grid.GetLength(1); j++)
+                    {
+                        if (cells[i, j].rectPos.Intersects(new Rectangle(mouseState.X, mouseState.Y, 0, 0)))
+                        {
+                            if (!cells[i, j].IsClicked)
+                            {
+                                cells[i, j].DrawFlag = !cells[i, j].DrawFlag;
+                            }
+                        }
+                    }
+                } 
             }
 
             base.Update(gameTime);
@@ -322,7 +347,13 @@ namespace minesweeper
                         }
                     }
                     if (overlayGrid[i, j].Width != 0 && overlayGrid[i, j].Height != 0)
+                    {
                         spriteBatch.Draw(overlayCell, overlayGrid[i, j], Color.White);
+                        if (cells[i, j].DrawFlag)
+                        {
+                            spriteBatch.Draw(flag, overlayGrid[i, j], Color.White);
+                        }
+                    }
                 }
             }
             if (wonGame)
@@ -342,6 +373,7 @@ namespace minesweeper
         void ResetGame()
         {
             mousePressed = false;
+            mouse2Pressed = false;
             hitBomb = false;
             wonGame = false;
 

@@ -14,6 +14,7 @@ namespace minesweeper
         List<Cell> adjacentCells;
 
         bool isClicked = false;
+        bool drawFlag = false;
         
         int gridX, gridY;
 
@@ -22,6 +23,12 @@ namespace minesweeper
         public bool IsClicked
         {
             get { return isClicked; }
+        }
+
+        public bool DrawFlag
+        {
+            get { return drawFlag; }
+            set { drawFlag = value; }
         }
 
         public int CellValue
