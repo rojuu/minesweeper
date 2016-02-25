@@ -21,14 +21,15 @@ namespace minesweeper
         Texture2D emptyCell;
         Texture2D overlayCell;
         Texture2D bombCell;
+        Texture2D lostScreen;
+        Texture2D wonScreen;
 
         Cell[,] cells;
 
         SpriteFont arial12;
 
-        //store mouse pressed state
         bool mousePressed = false;
-
+        bool wonGame = false;
         bool hitBomb = false;
         
         //how big the grid is (gridSize^2) and how many pixels wide each sell is
@@ -92,6 +93,8 @@ namespace minesweeper
             emptyCell = Content.Load<Texture2D>("emptyCell");
             overlayCell = Content.Load<Texture2D>("overlayCell");
             bombCell = Content.Load<Texture2D>("bombCell");
+            lostScreen = Content.Load<Texture2D>("lostScreen");
+            wonScreen = Content.Load<Texture2D>("wonScreen");
             
             cells = new Cell[gridSize, gridSize];
             
@@ -101,14 +104,12 @@ namespace minesweeper
 
             GenerateNewMineGrid();
 
-            //rectGrid = new Rectangle[gridSize, gridSize];
             overlayGrid = new Rectangle[gridSize, gridSize];
 
             for (int i = 0; i < gridSize; i++)
             {
                 for (int j = 0; j < gridSize; j++)
                 {
-                    //rectGrid[j, i] = new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize);
                     cells[i, j] = new Cell(new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize), j, i, grid[i, j]);
                     overlayGrid[i, j] = new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize);
                 }
@@ -230,26 +231,45 @@ namespace minesweeper
             {
                 mousePressed = false;
 
-                for (int i = 0; i < grid.GetLength(0); i++)
+                if (!hitBomb && !wonGame)
                 {
-                    for (int j = 0; j < grid.GetLength(1); j++)
+                    for (int i = 0; i < grid.GetLength(0); i++)
                     {
-                        if (cells[i, j].rectPos.Intersects(new Rectangle(mouseState.X, mouseState.Y, 0, 0)))
+                        for (int j = 0; j < grid.GetLength(1); j++)
                         {
-                            hitBomb = cells[i, j].Click(ref overlayGrid, ref cells);
+                            if (cells[i, j].rectPos.Intersects(new Rectangle(mouseState.X, mouseState.Y, 0, 0)))
+                            {
+                                hitBomb = cells[i, j].Click(ref overlayGrid, ref cells);
+                            }
                         }
+                    } 
+                }
+                else if (hitBomb)
+                {
+                    ResetGame();
+                }
+                else if (wonGame)
+                {
+                    ResetGame();
+                }
+
+                foreach (Cell c in cells)
+                {
+                    if (c.CellValue != -1)
+                    {
+                        if (!c.IsClicked)
+                        {
+                            wonGame = false;
+                            break;
+                        }
+                        wonGame = true;
                     }
                 }
             }
 
-            if (hitBomb)
-            {
-
-            }
-
             base.Update(gameTime);
         }
-        
+
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.DimGray);
@@ -302,13 +322,51 @@ namespace minesweeper
                         }
                     }
                     if (overlayGrid[i, j].Width != 0 && overlayGrid[i, j].Height != 0)
-                        spriteBatch.Draw(overlayCell, overlayGrid[i, j], Color.White * 0.7f);
+                        spriteBatch.Draw(overlayCell, overlayGrid[i, j], Color.White);
                 }
+            }
+            if (wonGame)
+            {
+                spriteBatch.Draw(wonScreen, GraphicsDevice.Viewport.TitleSafeArea, Color.Gray * 0.7f);
+            }
+            else if (hitBomb)
+            {
+                spriteBatch.Draw(lostScreen, GraphicsDevice.Viewport.TitleSafeArea, Color.Gray * 0.7f);
             }
             
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        void ResetGame()
+        {
+            mousePressed = false;
+            hitBomb = false;
+            wonGame = false;
+
+            //make a new list with one rect outside the playfield
+            clickedCells = new List<Rectangle>();
+            clickedCells.Add(new Rectangle(-1, -1, 0, 0));
+
+            clickStack = new List<int[]>();
+            
+            cells = new Cell[gridSize, gridSize];
+            
+            grid = new int[gridSize, gridSize];
+
+            GenerateNewMineGrid();
+
+            overlayGrid = new Rectangle[gridSize, gridSize];
+
+            for (int i = 0; i < gridSize; i++)
+            {
+                for (int j = 0; j < gridSize; j++)
+                {
+                    cells[i, j] = new Cell(new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize), j, i, grid[i, j]);
+                    overlayGrid[i, j] = new Rectangle(i * cellSize, j * cellSize, cellSize, cellSize);
+                }
+            }
         }
     }
 }

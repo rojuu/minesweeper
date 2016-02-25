@@ -29,6 +29,15 @@ namespace minesweeper
             get { return cellVal; }
         }
 
+        public int X
+        {
+            get { return gridX; }
+        }
+
+        public int Y
+        {
+            get { return gridY; }
+        }
 
         /// <summary>
         /// Stores cell information and handles cell logic
