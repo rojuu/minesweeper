@@ -35,12 +35,11 @@ namespace minesweeper
         bool hitBomb = false;
         
         //how big the grid is (gridSize^2) and how many pixels wide each sell is
-        int gridSize = 9;
+        int gridSize = 12;
         int cellSize = 24;
 
-        //used to spread out random generation of mines
-        int mineSpacing = 6;
-
+        int difficulty = 2;
+        
         //stores each rectangle position of the cells in the grid. so rectGrid[0,0] would match the rectPos of grid[0,0]
         //Rectangle[,] rectGrid;
         Rectangle[,] overlayGrid;
@@ -132,27 +131,16 @@ namespace minesweeper
 
             Random rnd = new Random();
 
-            int m = 0;
-            int n = mineSpacing;
-            for (int i = 0; i < grid.GetLength(0); i++)
-            {
-                for (int j = 0; j < grid.GetLength(1); j++)
-                {
-                    if (rnd.NextDouble() < 0.5 && n >= mineSpacing)
-                    {
-                        grid[i, j] = -1;
-                        n = 0;
-                        m++;
-                    }
-                    else
-                    {
-                        grid[i, j] = 0;
-                    }
-                    n++;
+            int numberOfMines = gridSize * difficulty;
 
-                    if (m >= gridSize/* *gridSize */)
-                        break;
+            for (int i = 0; i < numberOfMines; i++)
+            {
+                if (grid[rnd.Next(0, grid.GetLength(0)), rnd.Next(0, grid.GetLength(1))] != -1)
+                {
+                    grid[rnd.Next(0, grid.GetLength(0)), rnd.Next(0, grid.GetLength(1))] = -1;
                 }
+                else
+                    i--;
             }
 
             CheckNumberOfMinesAdjacent();
@@ -305,9 +293,13 @@ namespace minesweeper
             {
                 for (int j = 0; j < grid.GetLength(1); j++)
                 {
-                    if (grid[i, j] == -1)
+                    if (grid[i, j] == -1 && !cells[i, j].IsClicked)
                     {
                         spriteBatch.Draw(bombCell, cells[i, j].rectPos, Color.White);
+                    }
+                    else if (grid[i, j] == -1 && cells[i, j].IsClicked)
+                    {
+                        spriteBatch.Draw(bombCell, cells[i, j].rectPos, Color.Red);
                     }
                     else if (grid[i, j] == 0)
                     {
@@ -346,7 +338,7 @@ namespace minesweeper
                                 break;
                         }
                     }
-                    if (overlayGrid[i, j].Width != 0 && overlayGrid[i, j].Height != 0)
+                    if (overlayGrid[i, j].Width != 0 && overlayGrid[i, j].Height != 0 && !hitBomb)
                     {
                         spriteBatch.Draw(overlayCell, overlayGrid[i, j], Color.White);
                         if (cells[i, j].DrawFlag)
