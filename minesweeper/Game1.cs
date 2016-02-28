@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -13,11 +11,9 @@ namespace minesweeper
         GraphicsDevice device;
         SpriteBatch spriteBatch;
 
-        //setting variables to store input states
         KeyboardState keyboardState;
         MouseState mouseState;
 
-        //textures for bomb and grid images
         Texture2D emptyCell;
         Texture2D overlayCell;
         Texture2D bombCell;
@@ -25,9 +21,17 @@ namespace minesweeper
         Texture2D wonScreen;
         Texture2D flag;
 
+        //used to draw number of cells adjacent to an empty cell
+        SpriteFont arial12;
+
+        //all cells in play grid
         Cell[,] cells;
 
-        SpriteFont arial12;
+        //positions for overlay images (covers any bombs or other information under it)
+        Rectangle[,] overlayGrid;
+
+        //stores int values for mines in a grid. -1=mine, 0=no mine, n=number of mines adjacent. used for game logic
+        int[,] grid;
 
         bool mousePressed = false;
         bool mouse2Pressed = false;
@@ -38,19 +42,9 @@ namespace minesweeper
         int gridSize = 12;
         int cellSize = 24;
 
+        //difficulty determines the number of mines (gridSize*difficulty)
         int difficulty = 2;
         
-        //stores each rectangle position of the cells in the grid. so rectGrid[0,0] would match the rectPos of grid[0,0]
-        //Rectangle[,] rectGrid;
-        Rectangle[,] overlayGrid;
-
-        //listed containing any cells that have been clicked already
-        List<Rectangle> clickedCells;
-        List<int[]> clickStack;
-
-        //stores int values for mines in a grid. -1=mine, 0=no mine, n=number of mines touched. used for game logic
-        int[,] grid;
-
         //store resolution info
         int screenWidth;
         int screenHeight;
@@ -61,6 +55,7 @@ namespace minesweeper
             device = graphics.GraphicsDevice;
             graphics.IsFullScreen = false;
             
+            //set resolution based on the grid size
             graphics.PreferredBackBufferHeight = cellSize * gridSize;
             graphics.PreferredBackBufferWidth = cellSize * gridSize;
 
@@ -83,14 +78,8 @@ namespace minesweeper
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            //make a new list with one rect outside the playfield
-            clickedCells = new List<Rectangle>();
-            clickedCells.Add(new Rectangle(-1, -1, 0, 0));
-
-            clickStack = new List<int[]>();
-
-            //load images for empty and bomb cells
+            
+            //load all textures
             emptyCell = Content.Load<Texture2D>("emptyCell");
             overlayCell = Content.Load<Texture2D>("overlayCell");
             bombCell = Content.Load<Texture2D>("bombCell");
@@ -98,16 +87,17 @@ namespace minesweeper
             wonScreen = Content.Load<Texture2D>("wonScreen");
             flag = Content.Load<Texture2D>("flag");
 
-            cells = new Cell[gridSize, gridSize];
-            
             arial12 = Content.Load<SpriteFont>("Arial12");
 
+            cells = new Cell[gridSize, gridSize];
+            overlayGrid = new Rectangle[gridSize, gridSize];
             grid = new int[gridSize, gridSize];
 
+            //generates new mines into the grid
             GenerateNewMineGrid();
 
-            overlayGrid = new Rectangle[gridSize, gridSize];
 
+            //init overaly and cell grid. cell grid takes the cell position and cell 
             for (int i = 0; i < gridSize; i++)
             {
                 for (int j = 0; j < gridSize; j++)
@@ -118,6 +108,7 @@ namespace minesweeper
             }
         }
 
+        //generates new mines into the grid
         void GenerateNewMineGrid()
         {
             // making  the grid = 0
@@ -146,6 +137,7 @@ namespace minesweeper
             CheckNumberOfMinesAdjacent();
         }
 
+        //changes empty values in grid to represent number of mines adjacent
         void CheckNumberOfMinesAdjacent()
         {
             int numberOfMines = 0;
@@ -239,8 +231,10 @@ namespace minesweeper
                         }
                     } 
                 }
+                //if game has ended in win or lose and we click the mouse, reset game
                 else if (hitBomb)
                 {
+                    //reset game resets any variables used in the game and generates new mine positions
                     ResetGame();
                 }
                 else if (wonGame)
@@ -248,6 +242,7 @@ namespace minesweeper
                     ResetGame();
                 }
 
+                //if all non-bomb cells have been clicked on, set game wonGame to true
                 foreach (Cell c in cells)
                 {
                     if (c.CellValue != -1)
@@ -262,6 +257,7 @@ namespace minesweeper
                 }
             }
 
+            //pressing mouse2 places a flag on clicked cell, if it hasn't been clicked on
             if (mouse2Pressed && Mouse.GetState().RightButton == ButtonState.Released)
             {
                 mouse2Pressed = false;
@@ -289,24 +285,29 @@ namespace minesweeper
 
             spriteBatch.Begin();
 
+            //loop through all cells in the grid
             for (int i = 0; i < grid.GetLength(0); i++)
             {
                 for (int j = 0; j < grid.GetLength(1); j++)
                 {
+                    //draw bombs
                     if (grid[i, j] == -1 && !cells[i, j].IsClicked)
                     {
                         spriteBatch.Draw(bombCell, cells[i, j].rectPos, Color.White);
                     }
+                    //if bomb has been clicked, draw it as red
                     else if (grid[i, j] == -1 && cells[i, j].IsClicked)
                     {
                         spriteBatch.Draw(bombCell, cells[i, j].rectPos, Color.Red);
                     }
+                    //draw empty cells
                     else if (grid[i, j] == 0)
                     {
                         spriteBatch.Draw(emptyCell, cells[i, j].rectPos, Color.White);
                     }
                     else
                     {
+                        //draw number of bombs adjacent on top of empty cells, if needed
                         spriteBatch.Draw(emptyCell, cells[i, j].rectPos, Color.White);
                         switch (grid[i, j])
                         {
@@ -338,9 +339,11 @@ namespace minesweeper
                                 break;
                         }
                     }
+                    //if we haven't set overlaygrid width or height to 0, draw overlaygrid cell
                     if (overlayGrid[i, j].Width != 0 && overlayGrid[i, j].Height != 0 && !hitBomb)
                     {
                         spriteBatch.Draw(overlayCell, overlayGrid[i, j], Color.White);
+                        //if this cell has drawflag as true, draw flag 
                         if (cells[i, j].DrawFlag)
                         {
                             spriteBatch.Draw(flag, overlayGrid[i, j], Color.White);
@@ -348,6 +351,8 @@ namespace minesweeper
                     }
                 }
             }
+
+            //wongame / lostgame screens
             if (wonGame)
             {
                 spriteBatch.Draw(wonScreen, GraphicsDevice.Viewport.TitleSafeArea, Color.Gray * 0.7f);
@@ -362,19 +367,14 @@ namespace minesweeper
             base.Draw(gameTime);
         }
 
+        //reset game resets any variables used in the game and generates new mine positions
         void ResetGame()
         {
             mousePressed = false;
             mouse2Pressed = false;
             hitBomb = false;
             wonGame = false;
-
-            //make a new list with one rect outside the playfield
-            clickedCells = new List<Rectangle>();
-            clickedCells.Add(new Rectangle(-1, -1, 0, 0));
-
-            clickStack = new List<int[]>();
-            
+                        
             cells = new Cell[gridSize, gridSize];
             
             grid = new int[gridSize, gridSize];

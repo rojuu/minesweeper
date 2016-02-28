@@ -1,25 +1,26 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace minesweeper
 {
     class Cell
     {
+        //position and size of this cell in pixels
         public Rectangle rectPos;
 
+        //contains all adjacent cells to this cell
         List<Cell> adjacentCells;
 
         bool isClicked = false;
         bool drawFlag = false;
         
+        //position as coordinate values; (0,0), (0,1), etc.
         int gridX, gridY;
 
+        //value of cell in int[] grid: -1 is bomb, 0 is empty, n is number of mines adjacent
         int cellVal;
 
+        //public getters and setters
         public bool IsClicked
         {
             get { return isClicked; }
@@ -93,6 +94,7 @@ namespace minesweeper
             return false;
         }
 
+        // adds any adjacent cells to adjacentCells list
         private void FindAdjacentCells(ref Cell[,] CellGrid)
         {
             if (gridY > 0)
